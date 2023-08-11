@@ -1,0 +1,61 @@
+import requests      # To send request to opentdb website for an API.
+import json          # To convert json files into subsequent file.
+import random
+import html          # To eliminate the json entities from the string.
+
+end_quiz = ""
+score = 0
+correct_ans = 0
+incorrect_ans = 0
+print(input("Press enter to start quiz."))
+
+# This loop ends when user types 'q' to quit, otherwise user can plan it n number of times.
+while end_quiz != "q":
+    quiz = requests.get("https://opentdb.com/api.php?amount=1")
+    if quiz.status_code != int(200):
+        end_quiz = (input("\nServer error, Press enter to retry or type 'q' to quit."))
+    else:
+        data = json.loads(quiz.text)
+        question = data["results"][0]["question"]
+        correct_option = data["results"][0]["correct_answer"]
+        all_options = data["results"][0]["incorrect_answers"]
+        all_options.append(correct_option)
+        random.shuffle(all_options)
+        print(html.unescape(question) + "\n")
+        ans_num = 1
+        for ans in all_options:
+            print(str(ans_num) + "- " + html.unescape(ans))
+            ans_num += 1
+  # This loop is for error handling using try and except blocks
+        while True:
+            user_ans = input("\nEnter the option number:-  ")
+            try:
+                user_ans = int(user_ans)
+                if user_ans > len(all_options) or user_ans <= 0:
+                    print("\n## USE NUMBERS BETWEEN 1 TO 4 ONLY ##")
+                else:
+                    break
+            except:
+                print("\n## USE ONLY NUMBERS ##")
+        user_option = all_options[user_ans - 1]
+        if user_option == correct_option:
+            print("\nCongratss, the right answer is", html.unescape(correct_option))
+            score += 10
+            correct_ans += 1
+        else:
+            print("\nSorry,", html.unescape(user_option), "was incorrect, the correct answer was", html.unescape(correct_option))
+            score = score
+            incorrect_ans += 1
+        print("\n#####################")
+        print("Your score is: " + str(score))
+        print("Correct anwers : ", correct_ans)
+        print("Incorrect anwers : ", incorrect_ans)
+        print("#####################")
+
+        end_quiz = input("\nPress enter to play again or type 'q' to quit the game: ")
+        print("\n")
+print("\nThanks for playing!!!")
+            
+        
+        
+
